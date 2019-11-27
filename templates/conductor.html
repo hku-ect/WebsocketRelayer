@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CONDUCTOR from WebSocket demo</title>
+        <style type="text/css">
+            body {
+                font-family: "Courier New", sans-serif;
+                text-align: center;
+            }
+            .buttons {
+                font-size: 4em;
+                display: flex;
+                justify-content: center;
+            }
+            .button, .value {
+                line-height: 1;
+                padding: 2rem;
+                margin: 2rem;
+                border: medium solid;
+                min-height: 1em;
+                min-width: 1em;
+            }
+            .button {
+                cursor: pointer;
+                user-select: none;
+            }
+            .minus {
+                color: red;
+            }
+            .plus {
+                color: green;
+            }
+            .value {
+                min-width: 2em;
+            }
+            .state {
+                font-size: 2em;
+            }
+        </style>
+    </head>
+    <body>
+      <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+      <div class="message_holder"></div>
+
+      <div class="buttons">
+          <div class="minus button" id="minusButton">-</div>
+          <div class="value">?</div>
+          <div class="plus button" id=plusButton>+</div>
+      </div>
+      <div class="state">
+          <span class="users">?</span> online
+      </div>
+
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+      <script type="text/javascript">
+      var minus = document.querySelector('.minus'),
+          plus = document.querySelector('.plus'),
+          value = document.querySelector('.value'),
+          users = document.querySelector('.users');
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on( 'connect', function() {
+          socket.emit( 'my event', {
+            data: 'User Connected'
+          } )
+        } )
+// id minusButton is specifieker : vandaar # want id
+// TODO how to best send a 'PLUS' or 'Minus' command?
+// TODO how to set value to 'bla' ?    <div class="value">?</div>
+
+$("#minusButton").click(function()
+{
+          console.log( "MINUS" )
+          socket.emit( 'my Conductor event', {
+              action: 'minus'})
+});
+
+
+$("#plusButton").click(function()
+{
+
+  socket.emit( 'message', data );
+  // clear input
+  $( 'input.message' ).val( '' ).focus();
+
+  });
+
+
+        // when we receive the 'bla' event
+        socket.on( 'bla', function( msg )
+        {
+            console.log( msg )
+            for ( key in msg )
+            {
+                $( 'div.message_holder' ).append( key + " = " + msg[key] + "</br>" );
+            }
+            $( 'div.message_holder' ).append( '---</br>' );
+        } );
+
+
+      </script>
+    </body>
+</html>

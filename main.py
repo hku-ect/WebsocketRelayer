@@ -15,6 +15,10 @@ def messageReceived(methods=['GET', 'POST']):
 def sessions():
     return render_template('session.html')
 
+@app.route('/conductor')
+def conductor():
+    return render_template('conductor.html')
+
 @socketio.on('connect')
 def test_connect():
     socketio.emit('registration', {'event': 'Connected', 'clientid': request.sid })
