@@ -24,9 +24,8 @@ $ python3 main.py
 (27896) wsgi starting up on http://0.0.0.0:5000
 ```
 
-# Example
-
-You will need the flask and socketio dependency, see below. Inside the repositiry directory run the server:
+# Installation
+You will need the eventlet, flask and flask-socketio dependency, see below. Inside the repositiry directory run the server:
 
 ```
 python3 main.py
@@ -44,5 +43,5 @@ Then activate the Python environment for your session:
 ```
 You can now use pip to install any dependencies you need. For example install Flask with SocketIO:
 ```
-pip install flask flask-socketio
+pip install flask flask-socketio eventlet
 ```
