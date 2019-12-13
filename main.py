@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
 
-bla = 10
+bla = 1
 
 def messageReceived(methods=['GET', 'POST']):
 	print('message was received!!!')

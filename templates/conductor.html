@@ -44,7 +44,7 @@
 
       <div class="buttons">
           <div class="minus button" id="minusButton">-</div>
-          <div class="value">?</div>
+          <div class="value" id="value">?</div>
           <div class="plus button" id=plusButton>+</div>
       </div>
       <div class="state">
@@ -67,13 +67,11 @@
           } )
         } )
 // id minusButton is specifieker : vandaar # want id
-// TODO how to best send a 'PLUS' or 'Minus' command?
-// TODO how to set value to 'bla' ?    <div class="value">?</div>
 
 $("#minusButton").click(function()
 {
           console.log( "MINUS" )
-          socket.emit( 'my Conductor event', {
+          socket.emit( 'message', {
               action: 'minus'})
 });
 
@@ -81,7 +79,7 @@ $("#minusButton").click(function()
 $("#plusButton").click(function()
 {
 
-  socket.emit( 'message', data );
+  socket.emit( 'message', {action: 'plus'} );
   // clear input
   $( 'input.message' ).val( '' ).focus();
 
@@ -95,6 +93,10 @@ $("#plusButton").click(function()
             for ( key in msg )
             {
                 $( 'div.message_holder' ).append( key + " = " + msg[key] + "</br>" );
+              $( '#value').text(msg[key]) ;
+              // bla is momenteel de communicatie infrastructuur. Even verbeteren
+              if (key == "bla") $( '.users').text(msg[key]) ;
+
             }
             $( 'div.message_holder' ).append( '---</br>' );
         } );
