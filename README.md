@@ -17,7 +17,7 @@ $ pip install flask flask-socketio eventlet
 Collecting flask
   Using cached https://files.pythonhosted.org/packages/9b/93/628509b8d5dc749656a9641f4caf13540e2cdec85276964ff8f43bbb1d3b/Flask-1.1.1-py2.py3-none-any.whl
 ...
-$ python3 main.py 
+$ python3 main.py
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 239-841-434
@@ -25,7 +25,7 @@ $ python3 main.py
 ```
 
 # Installation
-You will need the eventlet, flask and flask-socketio dependency, see below. Inside the repositiry directory run the server:
+You will need the eventlet, flask and flask-socketio dependency, see below. Inside the repository directory run the server:
 
 ```
 python3 main.py

@@ -2,44 +2,10 @@
 <html>
     <head>
         <title>CONDUCTOR from WebSocket demo</title>
-        <style type="text/css">
-            body {
-                font-family: "Courier New", sans-serif;
-                text-align: center;
-            }
-            .buttons {
-                font-size: 4em;
-                display: flex;
-                justify-content: center;
-            }
-            .button, .value {
-                line-height: 1;
-                padding: 2rem;
-                margin: 2rem;
-                border: medium solid;
-                min-height: 1em;
-                min-width: 1em;
-            }
-            .button {
-                cursor: pointer;
-                user-select: none;
-            }
-            .minus {
-                color: red;
-            }
-            .plus {
-                color: green;
-            }
-            .value {
-                min-width: 2em;
-            }
-            .state {
-                font-size: 2em;
-            }
-        </style>
+        <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" media="all">
     </head>
     <body>
-      <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+      <h3>Conductor env.</h3>
       <div class="message_holder"></div>
 
       <div class="buttons">
@@ -62,12 +28,11 @@
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         socket.on( 'connect', function() {
-          socket.emit( 'my event', {
-            data: 'User Connected'
+          socket.emit( 'message', {
+            clients: '1 connected'
           } )
         } )
 // id minusButton is specifieker : vandaar # want id
-
 $("#minusButton").click(function()
 {
           console.log( "MINUS" )
@@ -85,22 +50,21 @@ $("#plusButton").click(function()
 
   });
 
+        // when we receive the 'commData' event
+        // commData is momenteel de communicatie infrastructuur.
 
-        // when we receive the 'bla' event
-        socket.on( 'bla', function( msg )
+        socket.on( 'commData', function( msg )
         {
             console.log( msg )
             for ( key in msg )
             {
                 $( 'div.message_holder' ).append( key + " = " + msg[key] + "</br>" );
               $( '#value').text(msg[key]) ;
-              // bla is momenteel de communicatie infrastructuur. Even verbeteren
-              if (key == "bla") $( '.users').text(msg[key]) ;
+              if (key == "clients") $( '.users').text(msg[key] + " USER ") ;
 
             }
             $( 'div.message_holder' ).append( '---</br>' );
         } );
-
 
       </script>
     </body>

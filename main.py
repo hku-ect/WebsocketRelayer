@@ -6,7 +6,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
 
-bla = 1
+commData = " "
+# track number of clients connected (currently including conductor)
+clients = 0
 
 def messageReceived(methods=['GET', 'POST']):
 	print('message was received!!!')
@@ -21,19 +23,24 @@ def conductor():
 
 @socketio.on('connect')
 def test_connect():
-    socketio.emit('registration', {'event': 'Connected', 'clientid': request.sid })
+	global clients
+	clients += 1
+	socketio.emit('registration', {'event': 'Connected', 'clientid': request.sid });
 
 @socketio.on('disconnect')
 def test_disconnect():
-    print('Client disconnected')
+	global clients
+	clients -= 1
+	print('Client disconnected')
 
 @socketio.on('message')
 def handle_message(msg):
-    global bla
-    bla += 1
+    global commData
+#    clients += 1
     print('received message: {}'.format(msg))
-    msg['bla'] = bla
-    socketio.emit("bla", msg);
+    msg['commData'] = commData
+    msg['clients'] = clients
+    socketio.emit("commData", msg);
 
 @socketio.on('registration')
 def handle_json(msg):
