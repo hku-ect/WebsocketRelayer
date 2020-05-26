@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CONDUCTOR from WebSocket demo</title>
+        <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" media="all">
+    </head>
+    <body>
+      <h3>Conductor env.</h3>
+      <div class="message_holder"></div>
+
+      <div class="buttons">
+          <div class="minus button" id="minusButton">-</div>
+          <div class="value" id="value">?</div>
+          <div class="plus button" id=plusButton>+</div>
+      </div>
+      <div class="state">
+          <span class="users">?</span> online
+      </div>
+
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+      <script type="text/javascript">
+      var minus = document.querySelector('.minus'),
+          plus = document.querySelector('.plus'),
+          value = document.querySelector('.value'),
+          users = document.querySelector('.users');
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on( 'connect', function() {
+          socket.emit( 'message', {
+            clients: '1 connected'
+          } )
+        } )
+// id minusButton is specifieker : vandaar # want id
+$("#minusButton").click(function()
+{
+          console.log( "MINUS" )
+          socket.emit( 'message', {
+              action: 'minus'})
+});
+
+
+$("#plusButton").click(function()
+{
+
+  socket.emit( 'message', {action: 'plus'} );
+  // clear input
+  $( 'input.message' ).val( '' ).focus();
+
+  });
+
+        // when we receive the 'commData' event
+        // commData is momenteel de communicatie infrastructuur.
+
+        socket.on( 'commData', function( msg )
+        {
+            console.log( msg )
+            for ( key in msg )
+            {
+                $( 'div.message_holder' ).append( key + " = " + msg[key] + "</br>" );
+              $( '#value').text(msg[key]) ;
+              if (key == "clients") $( '.users').text(msg[key] + " USER ") ;
+
+            }
+            $( 'div.message_holder' ).append( '---</br>' );
+        } );
+
+      </script>
+    </body>
+</html>

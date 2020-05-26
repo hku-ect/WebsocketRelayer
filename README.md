@@ -4,11 +4,28 @@ A simple websocket server which relays to all clients written in Python using Fl
 
 Just connect to the server and any message you sent will be received by all connected clients.
 
+# TL;DR
 
+```
+$ git clone https://github.com/hku-ect/WebsocketRelayer.git
+Cloning into 'WebsocketRelayer'...
+...
+$ cd WebsocketRelayer/
+$ python3 -m venv mypythondir
+$ . mypythondir/bin/activate
+$ pip install flask flask-socketio eventlet
+Collecting flask
+  Using cached https://files.pythonhosted.org/packages/9b/93/628509b8d5dc749656a9641f4caf13540e2cdec85276964ff8f43bbb1d3b/Flask-1.1.1-py2.py3-none-any.whl
+...
+$ python3 main.py
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 239-841-434
+(27896) wsgi starting up on http://0.0.0.0:5000
+```
 
-# Example
-
-You will need the flask and socketio dependency, see below. Inside the repositiry directory run the server:
+# Installation
+You will need the eventlet, flask and flask-socketio dependency, see below. Inside the repository directory run the server:
 
 ```
 python3 main.py
@@ -26,5 +43,5 @@ Then activate the Python environment for your session:
 ```
 You can now use pip to install any dependencies you need. For example install Flask with SocketIO:
 ```
-pip install flask flask-socketio
+pip install flask flask-socketio eventlet
 ```
