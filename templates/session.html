@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<title>Flask_Chat_App</title>
-</head>
+  <head>
+    <title>CLIENT from Flask_Chat_App</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" media="all">
+  </head>
 <body>
 
-<h3 style='color: #ccc;font-size: 30px;'>Messages</h3>
-<div style='border:1px solid #ccc; color: #888;font-size: 14px;' class="message_holder">
-</div>
+<h3>Messages</h3>
+<div class="message_holder"></div>
 
 <form action="" method="POST">
-<input type="text" class="username" placeholder="User Name"/>
-<input type="text" class="message" placeholder="Messages"/>
-<input type="submit"/>
+  <input type="text" class="username" placeholder="User Name"/>
+  <input type="text" class="message" placeholder="Messages"/>
+  <input type="submit"/>
 </form>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -20,19 +20,19 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
     var socket = io.connect('http://' + document.domain + ':' + location.port);
-    
+
     socket.on( 'connect_failed', function( arg )
     {
         console.log("websocket connection failed", arg );
     } );
-    
-    socket.on('connect', function() 
+
+    socket.on('connect', function()
     {
         console.log("connecting to websocket");
     } );
-    
+
     // when we receive a 'registration' event
-    socket.on( 'registration', function( msg )
+    socket.on( 'message', function( msg )
     {
         console.log( msg )
         for ( key in msg )
@@ -41,21 +41,10 @@
         }
         $( 'div.message_holder' ).append( '---</br>' );
     } );
-    
-    // when we receive the 'bla' event
-    socket.on( 'bla', function( msg )
-    {
-        console.log( msg )
-        for ( key in msg )
-        {
-            $( 'div.message_holder' ).append( key + " = " + msg[key] + "</br>" );
-        }
-        $( 'div.message_holder' ).append( '---</br>' );
-    } );
-    
+
     // handler for the submission form
     var form = $( 'form' );
-    form.on( 'submit', function( e ) 
+    form.on( 'submit', function( e )
     {
         e.preventDefault() // prevent default submit action
         let user_name = $( 'input.username' ).val();
@@ -63,7 +52,7 @@
         data = { user_name : user_name,
                  message : user_input };
         console.log( "sending data through websocket",  data);
-        // send data through websocket 
+        // send data through websocket
         // 'message' needs to be registered on the server
         socket.emit( 'message', data );
         // clear input
