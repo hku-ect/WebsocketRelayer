@@ -34,10 +34,10 @@ def on_disconnect():
     socketio.emit('disconnect', {'event': 'Disconnected', 'clientid': request.sid });
     print( 'Client disconnected', request.sid )
 
-@socketio.on('message')
-def on_message(msg):
+@socketio.on('message_event')
+def on_message_event(msg):
     print('received message: {}'.format(msg))
-    socketio.emit("message", { 'clientid': request.sid, 'message': msg });
+    socketio.emit("message_event", { 'clientid': request.sid, 'message': msg });
 
 @socketio.on_error_default
 def default_error_handler(e):
@@ -49,4 +49,4 @@ def default_error_handler(e):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host= '0.0.0.0', debug=True)
+    socketio.run(app, host= '0.0.0.0', port=3000, debug=True)
