@@ -32,7 +32,7 @@
     } );
 
     // when we receive a 'registration' event
-    socket.on( 'message-event', function( msg )
+    socket.on( 'message_event', function( msg )
     {
         console.log( msg )
         for ( key in msg )
@@ -54,7 +54,7 @@
         console.log( "sending data through websocket",  data);
         // send data through websocket
         // 'message' needs to be registered on the server
-        socket.emit( 'message-event', data );
+        socket.emit( 'message_event', data );
         // clear input
         $( 'input.message' ).val( '' ).focus();
     } );
