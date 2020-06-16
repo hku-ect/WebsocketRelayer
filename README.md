@@ -45,3 +45,14 @@ You can now use pip to install any dependencies you need. For example install Fl
 ```
 pip install flask flask-socketio eventlet
 ```
+
+## Deploy on Heroku
+
+You will need a heroku account with the heroku CLI tools installed!
+
+* Create a new app in heroku (You will need the name)
+* Login in the terminal: `heroku login`
+* Add the project to heroku: `heroku git:remote -a {your-project-name}` This will add a remote to the git repo
+* Finally upload the repo to heroku: `git push heroku master`
+* Test the deploy at your heroku name: `https://{your-project-name}.herokuapp.com/`
+
