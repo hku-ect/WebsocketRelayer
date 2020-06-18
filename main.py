@@ -4,7 +4,7 @@ from flask import request
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
-socketio = SocketIO(app)
+socketio = SocketIO(app, ping_timeout=10, ping_interval=5, cors_allowed_origins="*")
 
 # track number of clients connected (currently including conductor)
 clients = 0
