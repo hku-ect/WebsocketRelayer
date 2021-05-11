@@ -41,6 +41,20 @@ You can now use pip to install any dependencies you need.
 ```
 pip install -r requirements.txt
 ```
+Now run the server and open the browser at http://localhost:5000
+```
+python3 main.py
+```
+
+## Clients
+
+Some simple client examples can be found in the clients dir.
+
+```
+cd clients
+pip install -r requirements.txt
+python3 simple_client.py
+```
 
 ## Deploy on Heroku
 
