@@ -14,8 +14,8 @@ def echo_socket(ws):
     while not ws.closed:
         message = ws.receive()
         todel = []
-        print("Message received: {0}".format(message))
         if message:
+            print("Message received: {0}".format(message))
             for c in clients:
                 try:
                     c.send(message)
