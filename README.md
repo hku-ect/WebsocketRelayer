@@ -13,19 +13,15 @@ Cloning into 'WebsocketRelayer'...
 $ cd WebsocketRelayer/
 $ python3 -m venv mypythondir
 $ . mypythondir/bin/activate
-$ pip install flask flask-socketio eventlet
+$ pip install -r requirements.txt
 Collecting flask
   Using cached https://files.pythonhosted.org/packages/9b/93/628509b8d5dc749656a9641f4caf13540e2cdec85276964ff8f43bbb1d3b/Flask-1.1.1-py2.py3-none-any.whl
 ...
 $ python3 main.py
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 239-841-434
-(27896) wsgi starting up on http://0.0.0.0:5000
 ```
 
 # Installation
-You will need the eventlet, flask and flask-socketio dependency, see below. Inside the repository directory run the server:
+You will need the flask and flask-sockets dependency, see below. Inside the repository directory run the server:
 
 ```
 python3 main.py
@@ -41,9 +37,9 @@ Then activate the Python environment for your session:
 ```
 . mypythondir/bin/activate
 ```
-You can now use pip to install any dependencies you need. For example install Flask with SocketIO:
+You can now use pip to install any dependencies you need.
 ```
-pip install flask flask-socketio eventlet
+pip install -r requirements.txt
 ```
 
 ## Deploy on Heroku
