@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Websocket relayer demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+
+  <form action="" method="POST">
+    address: /<input type="text" class="address" placeholder="Address"/>
+    string: <input type="text" class="string" placeholder="Message"/>
+    <input type="submit"/>
+  </form>
+
+  <pre class="log"></pre>
+
+  <script type="text/javascript" src="static/reconnecting-websocket.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script type="text/javascript">
+let url = 'ws' + '://' + document.domain + ':' + location.port;
+let socket = new WebSocket(url + '/echo');
+
+socket.onopen = function(e) {
+  console.log("[open] Connection established");
+  console.log("Sending to server");
+  socket.send("Hellooo, I'm new");
+};
+
+socket.onmessage = function(event) {
+  console.log(`[message] Data received from server: ${event.data}`);
+  $('.log').append("> ");
+  $('.log').append(event.data);
+  $('.log').append("\n");
+};
+
+socket.onclose = function(event) {
+  if (event.wasClean) {
+    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+  } else {
+    // e.g. server process killed or network down
+    // event.code is usually 1006 in this case
+    console.log('[close] Connection died');
+  }
+};
+
+// handler for the submission form
+var form = $( 'form' );
+form.on( 'submit', function( e )
+{
+    e.preventDefault() // prevent default submit action
+    let user_name = $( 'input.address' ).val();
+    let user_input = $( 'input.string' ).val();
+    data = user_name + " : "+ user_input;
+    console.log( "sending data through websocket",  data);
+    // send data through websocket
+    // 'message' needs to be registered on the server
+    socket.send( data );
+    // clear input
+    $( 'input.message' ).val( '' ).focus();
+} );
+
+    </script>
+  </body>
+</html>
+

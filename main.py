@@ -1,52 +1,48 @@
 from flask import Flask, render_template
-from flask_socketio import SocketIO
-from flask import request
+from flask_sockets import Sockets
+
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
-socketio = SocketIO(app, ping_timeout=10, ping_interval=5, cors_allowed_origins="*")
+app.debug = True
+sockets = Sockets(app)
 
-# track number of clients connected (currently including conductor)
-clients = 0
+clients = set()
 
-def messageReceived(methods=['GET', 'POST']):
-    print('message was received!!!')
+@sockets.route('/echo')
+def echo_socket(ws):
+    clients.add(ws)
+    while not ws.closed:
+        message = ws.receive()
+        todel = []
+        print("Message received: {0}".format(message))
+        for c in clients:
+            try:
+                c.send(message)
+            except Exception as e:
+                print("Clients seems gone", e)
+                todel.append(c)
+        #ws.send(message)
+        for c in todel:
+            clients.discard(c)
+
 
 @app.route('/')
-def sessions():
-    return render_template('session.html')
-
-@app.route('/conductor')
-def conductor():
-    return render_template('conductor.html')
-
-@socketio.on('connect')
-def on_connect():
-    print("Client connect event")
-    global clients
-    clients += 1
-    socketio.emit('connect', {'event': 'Connected', 'clientid': request.sid });
-
-@socketio.on('disconnect')
-def on_disconnect():
-    global clients
-    clients -= 1
-    socketio.emit('disconnect', {'event': 'Disconnected', 'clientid': request.sid });
-    print( 'Client disconnected', request.sid )
-
-@socketio.on('message_event')
-def on_message_event(msg):
-    print('received message: {}'.format(msg))
-    socketio.emit("message_event", { 'clientid': request.sid, 'message': msg });
-
-@socketio.on_error_default
-def default_error_handler(e):
-    print("######### ERROR HANDLER #########")
-    print(e)
-    print(request.event["message"]) # "my error event"
-    print(request.event["args"])    # (data,)
-    print("######### END ERROR HANDLER #####")
+def hello():
+    return render_template('index.html')
 
 
-if __name__ == '__main__':
-    socketio.run(app, host= '0.0.0.0', port=3000, debug=True)
+if __name__ == "__main__":
+    from gevent import pywsgi
+    from geventwebsocket.handler import WebSocketHandler
+    import logging
+    logging.basicConfig(level=logging.INFO)
+
+    #from werkzeug.serving import run_with_reloader
+    #from werkzeug.debug import DebuggedApplication
+    #if app.debug:
+    #    application = DebuggedApplication(app)
+    #else:
+    application = app
+    server = pywsgi.WSGIServer(('', 5000), application, handler_class=WebSocketHandler)
+    server.serve_forever()
+#     app.run()
