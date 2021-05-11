@@ -15,15 +15,15 @@ def echo_socket(ws):
         message = ws.receive()
         todel = []
         print("Message received: {0}".format(message))
-        for c in clients:
-            try:
-                c.send(message)
-            except Exception as e:
-                print("Clients seems gone", e)
-                todel.append(c)
-        #ws.send(message)
-        for c in todel:
-            clients.discard(c)
+        if message:
+            for c in clients:
+                try:
+                    c.send(message)
+                except Exception as e:
+                    print("Clients seems gone, error is:", e)
+                    todel.append(c)
+            for c in todel:
+                clients.discard(c)
 
 
 @app.route('/')
