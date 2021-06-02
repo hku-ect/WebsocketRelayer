@@ -10,8 +10,10 @@ void setup(){
   size(200,200);
   
   newEllipse=true;
-  
+
+  // make sure you fill the right url here, 'ws' is plain websocket, 'wss' is secure websocket
   wsc= new WebsocketClient(this, "ws://pong.hku.nl:5000/echo");
+
   now=millis();
 }
 
