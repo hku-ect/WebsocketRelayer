@@ -9,9 +9,10 @@
   <form action="" method="POST">
     address: /<input type="text" class="address" placeholder="Address"/>
     string: <input type="text" class="string" placeholder="Message"/>
-    <input type="submit"/>
+    <input type="submit" value="Send through socket" />
   </form>
 
+  <h3>received text data</h3>
   <pre class="log"></pre>
 
   <script type="text/javascript" src="static/reconnecting-websocket.min.js"></script>
@@ -23,14 +24,14 @@ let socket = new WebSocket(url + '/echo');
 socket.onopen = function(e) {
   console.log("[open] Connection established");
   console.log("Sending to server");
-  socket.send("Hellooo, I'm new");
+  socket.send("Hellooo, I'm a new browser client");
 };
 
 socket.onmessage = function(event) {
-  console.log(`[message] Data received from server: ${event.data}`);
-  $('.log').append("> ");
-  $('.log').append(event.data);
-  $('.log').append("\n");
+  console.log(`[message] Text data received from server: ${event.data}`);
+  $('.log').prepend("\n");
+  $('.log').prepend(event.data);
+  $('.log').prepend("> ");
 };
 
 socket.onclose = function(event) {
@@ -51,7 +52,7 @@ form.on( 'submit', function( e )
     let user_name = $( 'input.address' ).val();
     let user_input = $( 'input.string' ).val();
     data = user_name + " : "+ user_input;
-    console.log( "sending data through websocket",  data);
+    console.log( "sending text data through websocket",  data);
     // send data through websocket
     // 'message' needs to be registered on the server
     socket.send( data );
