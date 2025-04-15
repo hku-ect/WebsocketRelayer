@@ -1,17 +1,17 @@
 from flask import Flask, render_template
-from flask_sockets import Sockets
+from flask_sock import Sock
 
 
 app = Flask(__name__)
 app.debug = True
-sockets = Sockets(app)
+sockets = Sock(app)
 
 clients = set()
 
 @sockets.route('/echo')
 def echo_socket(ws):
     clients.add(ws)
-    while not ws.closed:
+    while ws.connected:
         message = ws.receive()
         todel = []
         if message:
@@ -32,17 +32,18 @@ def hello():
 
 
 if __name__ == "__main__":
-    from gevent import pywsgi
-    from geventwebsocket.handler import WebSocketHandler
-    import logging
-    logging.basicConfig(level=logging.INFO)
+    # Uncomment to run from gevent
+    #from gevent import pywsgi, monkey
+    #import logging
+    #logging.basicConfig(level=logging.INFO)
+    #monkey.patch_all()
+    ##from werkzeug.serving import run_with_reloader
+    ##from werkzeug.debug import DebuggedApplication
+    ##if app.debug:
+    ##    application = DebuggedApplication(app)
+    ##else:
+    #server = pywsgi.WSGIServer(('', 5000), app)
+    #server.serve_forever()
 
-    #from werkzeug.serving import run_with_reloader
-    #from werkzeug.debug import DebuggedApplication
-    #if app.debug:
-    #    application = DebuggedApplication(app)
-    #else:
-    application = app
-    server = pywsgi.WSGIServer(('', 5000), application, handler_class=WebSocketHandler)
-    server.serve_forever()
-#     app.run()
+    # Run just from flask, comment when run from gevent
+    app.run()
