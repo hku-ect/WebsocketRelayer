@@ -1,2 +1,3 @@
 flask-sock
 gevent
+pyzmq
