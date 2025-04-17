@@ -13,23 +13,30 @@ socket = context.socket(zmq.PUB)
 socket.bind("tcp://*:5555")
 
 def msg2json(msg):
-    ret = ""
+    ret = {
+        "msgType": 0,
+        "objects": []
+    }
     try:
-        data = msg.split(";")
-        msgtype = data[0]
-        d = {
-            "id": data[0],
-            "TypeTag": data[1],
-            "Name": data[2],
-            "Position": data[3:5],
-            "Rotation": data[6:8],
-            "Scale": data[7:9]
-        }
-        ret = json.dumps(d)
+        data = msg.split(":")
+        ret["msgType"] = data[0]
+
+        for i in range(1, len(data)):
+            object = data[i].split(";")
+            d = {
+                "id": object[0],
+            	"typeTag": object[1],
+            	"name": object[2],
+                "transform": object[3:15]
+                #"Position": data[3:5],
+                #"Rotation": data[6:8],
+                #"Scale": data[7:9]
+            }
+            ret["objects"].append(d)
     except Exception as e:
         print("error parsing message: {}".format(e))
     finally:
-        return ret
+        return json.dumps(ret, indent=2)
 
 @sockets.route('/echo')
 def echo_socket(ws):
