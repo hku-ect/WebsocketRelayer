@@ -1,5 +1,7 @@
 from flask import Flask, render_template
 from flask_sock import Sock
+from pythonosc import osc_message_builder
+from typing import Dict, List, Any
 import zmq
 import json
 import numpy as np
@@ -46,7 +48,7 @@ def msg2json(msg):
     except Exception as e:
         print("error parsing message: {}".format(e))
     finally:
-        return json.dumps(ret, indent=2)
+        return ret
 
 def strToMatrix(transform_str):
     values = transform_str.strip('[]').split(';')
@@ -76,23 +78,67 @@ def valToMatrix(transform_values):
             matrix[2, 0:4] = float_values[8:12]
     
     return matrix
+    
+def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBuilder]:
+    messages = []
+    
+    try:
+        # Root transform message
+        root_msg = osc_message_builder.OscMessageBuilder(address="/root")
+        rootValues = data["rootTransform"].strip('[]').split(';')
+        rootFloats = [float(val) for val in rootValues]
+        for val in rootFloats:
+            root_msg.add_arg(val)
+        messages.append(root_msg)
+        
+        # Process each object
+        for obj in data["objects"]:        
+            obj_id = obj[0]
+            obj_type = obj[1]
+            obj_name = obj[2]
+            transform_values = obj[3:19]  # Get the 16 transform values (indices 3-18)
+            
+            # Create message with object name in the address
+            obj_msg = osc_message_builder.OscMessageBuilder(address=f"/object/{obj_name}")
+            
+            # Add all object data to the message
+            obj_msg.add_arg(obj_id)
+            obj_msg.add_arg(obj_type)
+            obj_msg.add_arg(obj_name)
+            for val in transform_values:
+                obj_msg.add_arg(val)
+                
+            messages.append(obj_msg)
+    except Exception as e:
+        print("error creating OSC Messages: {}".format(e))
+    finally:
+        return messages
 
 @sockets.route('/echo')
 def echo_socket(ws):
     clients.add(ws)
     while ws.connected:
         msg = ws.receive()
+        
+        # Message formatted in a JSON-like structure
         message = msg2json(msg)
+        # JSON formatted data
+        jsonMsgDump = json.dumps(message, indent=2)
+        # OSC message based on the relevant parts of the data as well
+        oscMessages = parse_to_osc(message)
+        for oscMessage in oscMessages:
+            socket.send(oscMessage)
+        
         todel = []
         if message:
-            print("Message received: {0}".format(message))
+            print("Message received: {0}".format(jsonMsgDump))
             # forward over zmq
-            socket.send(message.encode())
+            # socket.send(jsonMsgDump.encode())
             
             # forward to other clients
             for c in clients:
                 try:
-                    c.send(message)
+                    c.send(jsonMsgDump)
                 except Exception as e:
                     print("Clients seems gone, error is:", e)
                     todel.append(c)
