@@ -53,7 +53,7 @@ def strToMatrix(transform_str):
     return valToMatrix(values)
     
 def valToMatrix(transform_values):
-    float_values = [float(val) for val in values]
+    float_values = [float(val) for val in transform_values]
     
     # Create a 4x4 identity matrix
     matrix = np.identity(4)
