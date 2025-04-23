@@ -89,14 +89,14 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         rootFloats = [float(val) for val in rootValues]
         for val in rootFloats:
             root_msg.add_arg(val)
-        messages.append(root_msg)
+        messages.append(root_msg.build())
         
         # Process each object
         for obj in data["objects"]:        
-            obj_id = obj[0]
-            obj_type = obj[1]
-            obj_name = obj[2]
-            transform_values = obj[3:19]  # Get the 16 transform values (indices 3-18)
+            obj_id = obj["id"]
+            obj_type = obj["typeTag"]
+            obj_name = obj["name"]
+            transform_values = obj["transform"]  # Get the 16 transform values (indices 3-18)
             
             # Create message with object name in the address
             obj_msg = osc_message_builder.OscMessageBuilder(address=f"/object/{obj_name}")
@@ -108,7 +108,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             for val in transform_values:
                 obj_msg.add_arg(val)
                 
-            messages.append(obj_msg)
+            messages.append(obj_msg.build())
     except Exception as e:
         print("error creating OSC Messages: {}".format(e))
     finally:
@@ -127,7 +127,7 @@ def echo_socket(ws):
         # OSC message based on the relevant parts of the data as well
         oscMessages = parse_to_osc(message)
         for oscMessage in oscMessages:
-            socket.send(oscMessage)
+            socket.send(oscMessage.dgram)
         
         todel = []
         if message:
