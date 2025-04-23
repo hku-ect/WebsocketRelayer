@@ -1,3 +1,4 @@
 flask-sock
 gevent
 pyzmq
+numpy
