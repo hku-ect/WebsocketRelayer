@@ -16,7 +16,7 @@ socket.bind("tcp://*:5555")
 def msg2json(msg):
     ret = {
         "msgType": 0,
-        "rootTransform": ""
+        "rootTransform": "",
         "objects": []
     }
     try:
@@ -25,12 +25,12 @@ def msg2json(msg):
         ret["rootTransform"] = data[1]
         
         rootMatrix = strToMatrix(data[1])
-        inverseRootMatrix = np.linalg.inv(parent_matrix)
+        inverseRootMatrix = np.linalg.inv(rootMatrix)
 
         for i in range(2, len(data)):
             object = data[i].split(";")
             
-            globalMatrix = strToMatrix(object[3:19])
+            globalMatrix = valToMatrix(object[3:19])
             localMatrix = np.matmul(inverseRootMatrix, globalMatrix)
             
             d = {
@@ -50,6 +50,9 @@ def msg2json(msg):
 
 def strToMatrix(transform_str):
     values = transform_str.strip('[]').split(';')
+    return valToMatrix(values)
+    
+def valToMatrix(transform_values):
     float_values = [float(val) for val in values]
     
     # Create a 4x4 identity matrix
