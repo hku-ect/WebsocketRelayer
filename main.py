@@ -43,8 +43,8 @@ def msg2json(msg):
             	"name": object[2],
                 "transform": localMatrix.flatten().tolist(),
                 "properties": {
-                    "bool": object[20],
-                    "float": object[21],
+                    "bool": object[19],
+                    "float": object[20],
                     "color": [],
                     "intensity": 1,
                     "meshName": "",
@@ -60,23 +60,23 @@ def msg2json(msg):
             
             # parse properties for each type
             if object[1] == "Mesh":
-                d["properties"]["meshName"] = object[22]
-                d["properties"]["visible"] = object[23]
-                d["properties"]["color"] = object[24:29] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["transparency"] = object[30]
+                d["properties"]["meshName"] = object[21]
+                d["properties"]["visible"] = object[22]
+                d["properties"]["color"] = object[23:28] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["transparency"] = object[29]
                 pass
             elif object[1] == "Lamp":
-                d["properties"]["color"] = object[22:27] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["intensity"] = object[27]
+                d["properties"]["color"] = object[21:26] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["intensity"] = object[26]
                 pass
             elif object[1] == "Camera":
-                d["properties"]["fov"] = object[22]
+                d["properties"]["fov"] = object[21]
                 pass
             elif object[1] == "AudioSource":
-                d["properties"]["clipName"] = object[22]
+                d["properties"]["clipName"] = object[21]
                 d["properties"]["looping"] = 0 # NOT CURRENTLY SENT
-                d["properties"]["isPlaying"] = object[23] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["volume"] = object[24]
+                d["properties"]["isPlaying"] = object[22] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["volume"] = object[23]
                 pass
             
             ret["objects"].append(d)
