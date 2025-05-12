@@ -63,7 +63,7 @@ def msg2json(msg):
                 d["properties"]["meshName"] = object[21]
                 d["properties"]["visible"] = object[22]
                 d["properties"]["color"] = object[23:28] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["transparency"] = object[29]
+                d["properties"]["transparency"] = object[28]
                 pass
             elif object[1] == "Lamp":
                 d["properties"]["color"] = object[21:26] # this is sent as 5 values (RGBA + color space)
@@ -153,11 +153,13 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             if obj_type == "Mesh":
                 obj_msg.add_arg(obj["meshName"])
                 obj_msg.add_arg(obj["visible"])
-                obj_msg.add_arg(obj["color"])
+                for val in obj["color"]:
+                    obj_msg.add_arg(val)
                 obj_msg.add_arg(obj["transparency"])
                 pass
             elif obj_type == "Lamp":
-                obj_msg.add_arg(obj["color"])
+                for val in obj["color"]:
+                    obj_msg.add_arg(val)
                 obj_msg.add_arg(obj["intensity"])
                 pass
             elif obj_type == "Camera":
