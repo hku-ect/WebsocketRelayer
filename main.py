@@ -39,6 +39,7 @@ def msg2json(msg):
                 "id": object[0],
             	"typeTag": object[1],
                 # TODO: Active Boolean (not sent right now)
+                "active": "True",
             	"name": object[2],
                 "transform": localMatrix.flatten().tolist()
                 "properties": {
@@ -130,7 +131,8 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             obj_id = obj["id"]
             obj_type = obj["typeTag"]
             obj_name = obj["name"]
-            transform_values = obj["transform"]  # Get the 16 transform values (indices 3-18)
+            obj_active = obj["active"]
+            transform_values = obj["transform"]
             
             # Create message with object name in the address
             obj_msg = osc_message_builder.OscMessageBuilder(address=f"/object/{obj_name}")
@@ -138,10 +140,16 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             # Add all object data to the message
             obj_msg.add_arg(obj_id)
             obj_msg.add_arg(obj_type)
+            obj_msg.add_arg(obj_active)
             obj_msg.add_arg(obj_name)
             for val in transform_values:
                 obj_msg.add_arg(val)
+                
+            # wildcards
+            obj_msg.add_arg(obj["bool"])
+            obj_msg.add_arg(obj["float"])
             
+            # per type properties
             if obj_type == "Mesh":
                 obj_msg.add_arg(obj["meshName"])
                 obj_msg.add_arg(obj["visible"])
@@ -164,7 +172,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             
             messages.append(obj_msg.build())
     except Exception as e:
-        print("error creating OSC Messages: {}".format(e))
+        print("error creating OSC Messages: {0}".format(e))
     finally:
         return messages
 
