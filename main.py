@@ -146,30 +146,30 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
                 obj_msg.add_arg(val)
                 
             # wildcards
-            obj_msg.add_arg(obj["bool"])
-            obj_msg.add_arg(obj["float"])
+            obj_msg.add_arg(obj["properties"]["bool"])
+            obj_msg.add_arg(obj["properties"]["float"])
             
             # per type properties
             if obj_type == "Mesh":
-                obj_msg.add_arg(obj["meshName"])
-                obj_msg.add_arg(obj["visible"])
-                for val in obj["color"]:
+                obj_msg.add_arg(obj["properties"]["meshName"])
+                obj_msg.add_arg(obj["properties"]["visible"])
+                for val in obj["properties"]["color"]:
                     obj_msg.add_arg(val)
-                obj_msg.add_arg(obj["transparency"])
+                obj_msg.add_arg(obj["properties"]["transparency"])
                 pass
             elif obj_type == "Lamp":
-                for val in obj["color"]:
+                for val in obj["properties"]["color"]:
                     obj_msg.add_arg(val)
-                obj_msg.add_arg(obj["intensity"])
+                obj_msg.add_arg(obj["properties"]["intensity"])
                 pass
             elif obj_type == "Camera":
-                obj_msg.add_arg(obj["fov"])
+                obj_msg.add_arg(obj["properties"]["fov"])
                 pass
             elif obj_type == "AudioSource":
-                obj_msg.add_arg(obj["clipName"])
-                obj_msg.add_arg(obj["looping"])
-                obj_msg.add_arg(obj["isPlaying"])
-                obj_msg.add_arg(obj["volume"])
+                obj_msg.add_arg(obj["properties"]["clipName"])
+                obj_msg.add_arg(obj["properties"]["looping"])
+                obj_msg.add_arg(obj["properties"]["isPlaying"])
+                obj_msg.add_arg(obj["properties"]["volume"])
                 pass
             
             messages.append(obj_msg.build())
