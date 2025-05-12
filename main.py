@@ -38,12 +38,46 @@ def msg2json(msg):
             d = {
                 "id": object[0],
             	"typeTag": object[1],
+                # TODO: Active Boolean (not sent right now)
             	"name": object[2],
                 "transform": localMatrix.flatten().tolist()
-                #"Position": data[3:5],
-                #"Rotation": data[6:8],
-                #"Scale": data[7:9]
+                "properties": {
+                    "bool": object[20],
+                    "float": object[21],
+                    "color": [],
+                    "intensity": 1,
+                    "meshName": "",
+                    "visible": 1,
+                    "opacity": 1,
+                    "clipName": "",
+                    "looping": 0,
+                    "isPlaying": 1,
+                    "volume": 1,
+                    "fov": 45
+                }
             }
+            
+            # parse properties for each type
+            if object[1] == "Mesh":
+                d["properties"]["meshName"] = object[22]
+                d["properties"]["visible"] = object[23]
+                d["properties"]["color"] = object[24:29] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["transparency"] = object[30]
+                pass
+            elif object[1] == "Lamp":
+                d["properties"]["color"] = object[22:27] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["intensity"] = object[27]
+                pass
+            elif object[1] == "Camera":
+                d["properties"]["fov"] = object[22]
+                pass
+            elif object[1] == "AudioSource":
+                d["properties"]["clipName"] = object[22]
+                d["properties"]["looping"] = 0 # NOT CURRENTLY SENT
+                d["properties"]["isPlaying"] = object[23] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["volume"] = object[24]
+                pass
+            
             ret["objects"].append(d)
     except Exception as e:
         print("error parsing message: {}".format(e))
@@ -107,7 +141,27 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             obj_msg.add_arg(obj_name)
             for val in transform_values:
                 obj_msg.add_arg(val)
-                
+            
+            if obj_type == "Mesh":
+                obj_msg.add_arg(obj["meshName"])
+                obj_msg.add_arg(obj["visible"])
+                obj_msg.add_arg(obj["color"])
+                obj_msg.add_arg(obj["transparency"])
+                pass
+            elif obj_type == "Lamp":
+                obj_msg.add_arg(obj["color"])
+                obj_msg.add_arg(obj["intensity"])
+                pass
+            elif obj_type == "Camera":
+                obj_msg.add_arg(obj["fov"])
+                pass
+            elif obj_type == "AudioSource":
+                obj_msg.add_arg(obj["clipName"])
+                obj_msg.add_arg(obj["looping"])
+                obj_msg.add_arg(obj["isPlaying"])
+                obj_msg.add_arg(obj["volume"])
+                pass
+            
             messages.append(obj_msg.build())
     except Exception as e:
         print("error creating OSC Messages: {}".format(e))
