@@ -41,7 +41,7 @@ def msg2json(msg):
                 # TODO: Active Boolean (not sent right now)
                 "active": "True",
             	"name": object[2],
-                "transform": localMatrix.flatten().tolist()
+                "transform": localMatrix.flatten().tolist(),
                 "properties": {
                     "bool": object[20],
                     "float": object[21],
