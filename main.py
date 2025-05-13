@@ -46,15 +46,15 @@ def msg2json(msg):
                     "bool": object[19],
                     "float": object[20],
                     "color": [],
-                    "intensity": 1,
+                    "intensity": "1",
                     "meshName": "",
-                    "visible": 1,
-                    "opacity": 1,
+                    "visible": "1",
+                    "opacity": "1",
                     "clipName": "",
-                    "looping": 0,
-                    "isPlaying": 1,
-                    "volume": 1,
-                    "fov": 45
+                    "looping": "0",
+                    "isPlaying": "1",
+                    "volume": "1",
+                    "fov": "45"
                 }
             }
             
@@ -72,10 +72,10 @@ def msg2json(msg):
             elif object[1] == "Camera":
                 d["properties"]["fov"] = object[21]
                 pass
-            elif object[1] == "AudioSource":
+            elif object[1] == "Audio":
                 d["properties"]["clipName"] = object[21]
-                d["properties"]["looping"] = 0 # NOT CURRENTLY SENT
-                d["properties"]["isPlaying"] = object[22] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["looping"] = "0" # NOT CURRENTLY SENT
+                d["properties"]["isPlaying"] = object[22]
                 d["properties"]["volume"] = object[23]
                 pass
             
@@ -143,7 +143,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             obj_msg.add_arg(obj_active)
             obj_msg.add_arg(obj_name)
             for val in transform_values:
-                obj_msg.add_arg(val)
+                obj_msg.add_arg(str(val))
                 
             # wildcards
             obj_msg.add_arg(obj["properties"]["bool"])
@@ -165,7 +165,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             elif obj_type == "Camera":
                 obj_msg.add_arg(obj["properties"]["fov"])
                 pass
-            elif obj_type == "AudioSource":
+            elif obj_type == "Audio":
                 obj_msg.add_arg(obj["properties"]["clipName"])
                 obj_msg.add_arg(obj["properties"]["looping"])
                 obj_msg.add_arg(obj["properties"]["isPlaying"])
