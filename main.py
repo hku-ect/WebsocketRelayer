@@ -34,6 +34,8 @@ def msg2json(msg):
             
             globalMatrix = valToMatrix(object[3:19])
             localMatrix = np.matmul(inverseRootMatrix, globalMatrix)
+            localMatrix = resoniteToUnrealMatrix(localMatrix)
+            localMatrix = fix_rotation_in_4x4_matrix(localMatrix)
             
             d = {
                 "id": object[0],
@@ -116,15 +118,82 @@ def valToMatrix(transform_values):
 
 # Matrix to convert Resonite space → Unreal space (RH Z-up to LH Z-up)
 conversion = np.array([
-    [0, 1, 0, 0],  # Resonite X → Unreal Y
-    [0, 0, 1, 0],  # Resonite Y → Unreal Z
-    [1, 0, 0, 0],  # Resonite Z → Unreal X
+    [1, 0, 0, 0],  # Resonite X → Unreal Z
+    [0, 1, 0, 0],  # Resonite Y → Unreal Y
+    [0, 0, -1, 0], # Resonite Z → Unreal -Z
     [0, 0, 0, 1]
 ])
 def resoniteToUnrealMatrix(resoMat):
     unrealMat = conversion @ M_resonite @ np.linalg.inv(conversion)
     return unrealMat
+
+def fix_rotation_in_4x4_matrix(matrix, source_order='xyz', target_order='zyx'):
+    """
+    Fix rotation in a 4x4 transformation matrix while preserving position and scale.
     
+    Args:
+        matrix: 4x4 transformation matrix (numpy array)
+        source_order: Euler angle order in the source system (e.g., 'xyz' for Resonite)
+        target_order: Euler angle order in the target system (e.g., 'zyx' for Unreal)
+    
+    Returns:
+        4x4 transformation matrix with the corrected rotation
+    """
+    # Make a copy to avoid modifying the original
+    result_matrix = np.copy(matrix)
+    
+    # Extract components
+    rotation_matrix = matrix[:3, :3]
+    translation = matrix[:3, 3]
+    
+    # Extract scales from the rotation matrix columns
+    scale_x = np.linalg.norm(rotation_matrix[:, 0])
+    scale_y = np.linalg.norm(rotation_matrix[:, 1])
+    scale_z = np.linalg.norm(rotation_matrix[:, 2])
+    scales = np.array([scale_x, scale_y, scale_z])
+    
+    # Normalize the rotation matrix to remove scaling
+    normalized_rotation = np.zeros((3, 3))
+    for i in range(3):
+        normalized_rotation[:, i] = rotation_matrix[:, i] / scales[i]
+    
+    # Ensure the matrix is a proper rotation matrix (orthogonal with determinant 1)
+    # This helps prevent issues with slightly non-orthogonal matrices
+    u, _, vh = np.linalg.svd(normalized_rotation)
+    proper_rotation = u @ vh
+    
+    # Handle reflection matrices (determinant -1)
+    if np.linalg.det(proper_rotation) < 0:
+        u[:, -1] *= -1
+        proper_rotation = u @ vh
+    
+    # Create rotation object from the proper rotation matrix
+    r = R.from_matrix(proper_rotation)
+    
+    # Get source system Euler angles
+    source_euler = r.as_euler(source_order, degrees=True)
+    
+    # Print for debugging
+    print(f"Source euler angles ({source_order}): {source_euler}")
+    
+    # Convert to target system using the same angles but different convention
+    target_r = R.from_euler(target_order, source_euler, degrees=True)
+    corrected_rotation = target_r.as_matrix()
+    
+    # Reapply scales to the corrected rotation matrix
+    scaled_rotation = np.zeros((3, 3))
+    for i in range(3):
+        scaled_rotation[:, i] = corrected_rotation[:, i] * scales[i]
+    
+    # Reconstruct the 4x4 matrix with the corrected rotation
+    result_matrix[:3, :3] = scaled_rotation
+    
+    # Print the expected Euler angles in the target system
+    target_euler = target_r.as_euler(target_order, degrees=True)
+    print(f"Target euler angles ({target_order}): {target_euler}")
+    
+    return result_matrix
+
 def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBuilder]:
     messages = []
     
