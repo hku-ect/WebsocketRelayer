@@ -32,10 +32,10 @@ def msg2json(msg):
         for i in range(2, len(data)):
             object = data[i].split(";")
             
-            globalMatrix = valToMatrix(object[3:19])
-            localMatrix = np.matmul(inverseRootMatrix, globalMatrix)
-            localMatrix = resoniteToUnrealMatrix(localMatrix)
-            localMatrix = fix_rotation_in_4x4_matrix(localMatrix)
+            #globalMatrix = valToMatrix(object[3:19])
+            #localMatrix = np.matmul(inverseRootMatrix, globalMatrix)
+            #localMatrix = resoniteToUnrealMatrix(localMatrix)
+            #localMatrix = fix_rotation_in_4x4_matrix(localMatrix)
             
             d = {
                 "id": object[0],
@@ -43,10 +43,12 @@ def msg2json(msg):
                 # TODO: Active Boolean (not sent right now)
                 "active": "True",
             	"name": object[2],
-                "transform": localMatrix.flatten().tolist(),
+                "position": object[3:6], #localMatrix.flatten().tolist(),
+                "rotation": object[6:9],
+                "scale": object[9:12],           
                 "properties": {
-                    "bool": object[19],
-                    "float": object[20],
+                    "bool": object[12],
+                    "float": object[13],
                     "color": [],
                     "intensity": "1",
                     "meshName": "",
@@ -62,23 +64,23 @@ def msg2json(msg):
             
             # parse properties for each type
             if object[1] == "Mesh":
-                d["properties"]["meshName"] = object[21]
-                d["properties"]["visible"] = object[22]
-                d["properties"]["color"] = object[23:28] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["transparency"] = object[28]
+                d["properties"]["meshName"] = object[14]
+                d["properties"]["visible"] = object[15]
+                d["properties"]["color"] = object[16:21] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["transparency"] = object[21]
                 pass
             elif object[1] == "Lamp":
-                d["properties"]["color"] = object[21:26] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["intensity"] = object[26]
+                d["properties"]["color"] = object[14:19] # this is sent as 5 values (RGBA + color space)
+                d["properties"]["intensity"] = object[19]
                 pass
             elif object[1] == "Camera":
-                d["properties"]["fov"] = object[21]
+                d["properties"]["fov"] = object[14]
                 pass
             elif object[1] == "Audio":
-                d["properties"]["clipName"] = object[21]
+                d["properties"]["clipName"] = object[14]
                 d["properties"]["looping"] = "0" # NOT CURRENTLY SENT
-                d["properties"]["isPlaying"] = object[22]
-                d["properties"]["volume"] = object[23]
+                d["properties"]["isPlaying"] = object[15]
+                d["properties"]["volume"] = object[16]
                 pass
             
             ret["objects"].append(d)
@@ -212,7 +214,12 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             obj_type = obj["typeTag"]
             obj_name = obj["name"]
             obj_active = obj["active"]
-            transform_values = obj["transform"]
+            
+            #transform_values = obj["transform"]
+            
+            position = obj["position"]
+            rotation = obj["rotation"]
+            scale = obj["scale"]
             
             # Create message with object name in the address
             obj_msg = osc_message_builder.OscMessageBuilder(address=f"/object/{obj_name}")
@@ -222,8 +229,13 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             obj_msg.add_arg(obj_type)
             obj_msg.add_arg(obj_active)
             obj_msg.add_arg(obj_name)
-            for val in transform_values:
-                obj_msg.add_arg(str(val))
+            
+            for val in position:
+                obj_msg.add_arg(val)
+            for val in rotation:
+                obj_msg.add_arg(val)
+            for val in scale:
+                obj_msg.add_arg(val)
                 
             # wildcards
             obj_msg.add_arg(obj["properties"]["bool"])
