@@ -113,6 +113,17 @@ def valToMatrix(transform_values):
             matrix[2, 0:4] = float_values[8:12]
     
     return matrix
+
+# Matrix to convert Resonite space → Unreal space (RH Z-up to LH Z-up)
+conversion = np.array([
+    [0, 1, 0, 0],  # Resonite X → Unreal Y
+    [0, 0, 1, 0],  # Resonite Y → Unreal Z
+    [1, 0, 0, 0],  # Resonite Z → Unreal X
+    [0, 0, 0, 1]
+])
+def resoniteToUnrealMatrix(resoMat):
+    unrealMat = conversion @ M_resonite @ np.linalg.inv(conversion)
+    return unrealMat
     
 def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBuilder]:
     messages = []
