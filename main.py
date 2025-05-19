@@ -129,6 +129,18 @@ def resoniteToUnrealMatrix(resoMat):
     unrealMat = conversion @ M_resonite @ np.linalg.inv(conversion)
     return unrealMat
 
+def limitEulerRanges(eulerArr):
+    if (eulerArr[0] > 180): eulerArr[0] -= 360
+    if (eulerArr[0] < 180): eulerArr[0] += 360
+
+    if (eulerArr[1] > 180): eulerArr[1] -= 360
+    if (eulerArr[1] < 180): eulerArr[1] += 360
+
+    if (eulerArr[2] > 180): eulerArr[2] -= 360
+    if (eulerArr[2] < 180): eulerArr[2] += 360
+
+    return eulerArr
+
 def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBuilder]:
     messages = []
     
@@ -151,8 +163,15 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             #transform_values = obj["transform"]
             
             position = obj["position"]
-            rotation = obj["rotation"]
+            rotation = np.array(obj["rotation"]).astype(np.float)
             scale = obj["scale"]
+
+            #transform_values = obj["transform"]
+            # convert Resonite to Unreal positions/rotations/scale
+            uPos = [float(position[0]) * 100, -float(position[2]) * 100, float(position[1]) * 100] #flip y
+            rotation = limitEulerRange(rotation)
+            uEuler = [rotation[0], rotation[2], rotation[1]] #flip x & z rotation
+            uScale = [scale[0], scale[2], scale[1]]
             
             # Create message with object name in the address
             obj_msg = osc_message_builder.OscMessageBuilder(address=f"/object/{obj_name}")
@@ -163,11 +182,11 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             obj_msg.add_arg(obj_active)
             obj_msg.add_arg(obj_name)
             
-            for val in position:
-                obj_msg.add_arg(val)
-            for val in rotation:
-                obj_msg.add_arg(val)
-            for val in scale:
+            for val in uPos:
+                obj_msg.add_arg(str(val))
+            for val in uEuler:
+                obj_msg.add_arg(str(val))
+            for val in uScale:
                 obj_msg.add_arg(val)
                 
             # wildcards
@@ -220,7 +239,7 @@ def echo_socket(ws):
         
         todel = []
         if message:
-            print("Message received: {0}".format(jsonMsgDump))
+            print("Message received")#: {0}".format(jsonMsgDump))
             # forward over zmq
             # socket.send(jsonMsgDump.encode())
             
