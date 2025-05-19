@@ -78,9 +78,9 @@ def msg2json(msg):
                 pass
             elif object[1] == "Audio":
                 d["properties"]["clipName"] = object[14]
-                d["properties"]["looping"] = "0" # NOT CURRENTLY SENT
-                d["properties"]["isPlaying"] = object[15]
-                d["properties"]["volume"] = object[16]
+                d["properties"]["looping"] = object[15]
+                d["properties"]["isPlaying"] = object[16]
+                d["properties"]["volume"] = object[17]
                 pass
             
             ret["objects"].append(d)
