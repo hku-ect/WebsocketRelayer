@@ -19,7 +19,8 @@ def msg2json(msg):
     ret = {
         "msgType": 0,
         "rootTransform": "",
-        "objects": []
+        "objects": [],
+        "users": []
     }
     try:
         data = msg.split(":")
@@ -30,60 +31,68 @@ def msg2json(msg):
         inverseRootMatrix = np.linalg.inv(rootMatrix)
 
         for i in range(2, len(data)):
-            object = data[i].split(";")
+            object = data[i].split(";")            
             
-            #globalMatrix = valToMatrix(object[3:19])
-            #localMatrix = np.matmul(inverseRootMatrix, globalMatrix)
-            #localMatrix = resoniteToUnrealMatrix(localMatrix)
-            #localMatrix = fix_rotation_in_4x4_matrix(localMatrix)
-            
-            d = {
-                "id": object[0],
-            	"typeTag": object[1],
-                # TODO: Active Boolean (not sent right now)
-                "active": "True",
-            	"name": object[2],
-                "position": object[3:6], #localMatrix.flatten().tolist(),
-                "rotation": object[6:9],
-                "scale": object[9:12],           
-                "properties": {
-                    "bool": object[12],
-                    "float": object[13],
-                    "color": [],
-                    "intensity": "1",
-                    "meshName": "",
-                    "visible": "1",
-                    "opacity": "1",
-                    "clipName": "",
-                    "looping": "0",
-                    "isPlaying": "1",
-                    "volume": "1",
-                    "fov": "45"
+            if object[0] == "User":
+                u = {
+                    "name": object[1],
+                    "headPosition": object[2:5],
+                    "headRotation": object[5:8],
+                    "lhPosition": object[8:11],
+                    "lhRotation": object[11:14],
+                    "rhPosition": object[14:17],
+                    "rhRotation": object[17:20]
                 }
-            }
-            
-            # parse properties for each type
-            if object[1] == "Mesh":
-                d["properties"]["meshName"] = object[14]
-                d["properties"]["visible"] = object[15]
-                d["properties"]["color"] = object[16:21] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["transparency"] = object[21]
-                pass
-            elif object[1] == "Lamp":
-                d["properties"]["color"] = object[14:19] # this is sent as 5 values (RGBA + color space)
-                d["properties"]["intensity"] = object[19]
-                pass
-            elif object[1] == "Camera":
-                d["properties"]["fov"] = object[14]
-                pass
-            elif object[1] == "Audio":
-                d["properties"]["clipName"] = object[14]
-                d["properties"]["looping"] = object[15]
-                d["properties"]["isPlaying"] = object[16]
-                d["properties"]["volume"] = object[17]
-                pass
-            
-            ret["objects"].append(d)
+                
+                ret["users"].append(u)
+            else:
+                d = {
+                    "id": object[0],
+                    "typeTag": object[1],
+                    # TODO: Active Boolean (not sent right now)
+                    "active": "True",
+                    "name": object[2],
+                    "position": object[3:6], #localMatrix.flatten().tolist(),
+                    "rotation": object[6:9],
+                    "scale": object[9:12],           
+                    "properties": {
+                        "bool": object[12],
+                        "float": object[13],
+                        "color": [],
+                        "intensity": "1",
+                        "meshName": "",
+                        "visible": "1",
+                        "opacity": "1",
+                        "clipName": "",
+                        "looping": "0",
+                        "isPlaying": "1",
+                        "volume": "1",
+                        "fov": "45"
+                    }
+                }
+                
+                # parse properties for each type
+                if object[1] == "Mesh":
+                    d["properties"]["meshName"] = object[14]
+                    d["properties"]["visible"] = object[15]
+                    d["properties"]["color"] = object[16:21] # this is sent as 5 values (RGBA + color space)
+                    d["properties"]["transparency"] = object[21]
+                    pass
+                elif object[1] == "Lamp":
+                    d["properties"]["color"] = object[14:19] # this is sent as 5 values (RGBA + color space)
+                    d["properties"]["intensity"] = object[19]
+                    pass
+                elif object[1] == "Camera":
+                    d["properties"]["fov"] = object[14]
+                    pass
+                elif object[1] == "Audio":
+                    d["properties"]["clipName"] = object[14]
+                    d["properties"]["looping"] = object[15]
+                    d["properties"]["isPlaying"] = object[16]
+                    d["properties"]["volume"] = object[17]
+                    pass
+                
+                ret["objects"].append(d)
     except Exception as e:
         print("error parsing message: {}".format(e))
     finally:
@@ -140,6 +149,12 @@ def limitEulerRanges(eulerArr):
     if (eulerArr[2] < 180): eulerArr[2] += 360
 
     return eulerArr
+    
+def resoniteToUnrealPosition(resoPos):
+    return [resoPos[0] * 100, resoPos[2] * 100, position[1] * 100]
+    
+def resoniteToUnrealEuler(resoEuler):
+    return [resoEuler[0], resoEuler[2], resoEuler[1]]
 
 def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBuilder]:
     messages = []
@@ -217,6 +232,48 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
                 pass
             
             messages.append(obj_msg.build())
+        # Process users
+        for usr in data["users"]:
+            usr_name = usr["name"]
+            
+            # parse to arrays
+            usr_hPos = np.array(usr["headPosition"]).astype(np.float)
+            usr_lhPos = np.array(usr["lhPosition"]).astype(np.float)
+            usr_rhPos = np.array(usr["rhPosition"]).astype(np.float)
+            
+            usr_hRot = limitEulerRange(np.array(usr["headRotation"]).astype(np.float))
+            usr_lhRot = limitEulerRange(np.array(usr["lhRotation"]).astype(np.float))
+            usr_rhRot = limitEulerRangenp.array(usr["rhRotation"]).astype(np.float))
+            
+            # convert to unreal space
+            usr_hPos = resoniteToUnrealPosition(usr_hPos)
+            usr_lhPos = resoniteToUnrealPosition(usr_hPos)
+            usr_lhPos = resoniteToUnrealPosition(usr_hPos)
+            
+            usr_hRot = resoniteToUnrealEuler(usr_hRot)
+            usr_hRot = resoniteToUnrealEuler(usr_hRot)
+            usr_hRot = resoniteToUnrealEuler(usr_hRot)
+            
+            # build message            
+            usr_msg = osc_message_builder.OscMessageBuilder(address=f"/user/{usr_name}")
+            
+            usr_msg.add_arg(usr_name)
+            
+            for val in usr_hPos:
+                usr_msg.add_arg(str(val))
+            for val in usr_hRot:
+                usr_msg.add_arg(str(val))
+            for val in usr_lhPos:
+                usr_msg.add_arg(str(val))
+            for val in usr_lhRot:
+                usr_msg.add_arg(str(val))
+            for val in usr_rhPos:
+                usr_msg.add_arg(str(val))
+            for val in usr_rhRot:
+                usr_msg.add_arg(str(val))
+                
+            messages.append(obj_msg.build())
+            
     except Exception as e:
         print("error creating OSC Messages: {0}".format(e))
     finally:
