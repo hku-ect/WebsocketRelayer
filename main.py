@@ -46,7 +46,7 @@ def msg2json(msg):
                 }
                 
                 ret["users"].append(u)
-            else:
+            else if object[0] != '0':
                 d = {
                     "id": object[0],
                     "typeTag": object[1],
