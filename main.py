@@ -41,7 +41,8 @@ def msg2json(msg):
                     "lhPosition": object[8:11],
                     "lhRotation": object[11:14],
                     "rhPosition": object[14:17],
-                    "rhRotation": object[17:20]
+                    "rhRotation": object[17:20],
+                    "scale": object[20]
                 }
                 
                 ret["users"].append(u)
@@ -271,6 +272,8 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
                 usr_msg.add_arg(str(val))
             for val in usr_rhRot:
                 usr_msg.add_arg(str(val))
+
+            usr_msg.add_arg(usr["scale"])
                 
             messages.append(obj_msg.build())
             
