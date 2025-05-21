@@ -275,7 +275,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
 
             usr_msg.add_arg(usr["scale"])
                 
-            messages.append(obj_msg.build())
+            messages.append(usr_msg.build())
             
     except Exception as e:
         print("error creating OSC Messages: {0}".format(e))
