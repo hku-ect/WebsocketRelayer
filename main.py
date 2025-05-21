@@ -31,7 +31,7 @@ def resoniteToUnrealPosition(resoPos):
     return [resoPos[0] * 100, -resoPos[2] * 100, resoPos[1] * 100]
     
 def resoniteToUnrealEuler(resoEuler):
-    return [resoEuler[0], -resoEuler[2], resoEuler[1]]
+    return [-resoEuler[0], resoEuler[2], -resoEuler[1]]
 
 def resoniteToUnrealScale(resoScale):
     return [resoScale[0], resoScale[2], resoScale[1]]
@@ -204,7 +204,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             # convert Resonite to Unreal positions/rotations/scale
             uPos = [float(position[0]) * 100, -float(position[2]) * 100, float(position[1]) * 100] #flip y
             rotation = limitEulerRanges(rotation)
-            uEuler = [rotation[0], -rotation[2], rotation[1]] #flip x & z rotation
+            uEuler = [-rotation[0], rotation[2], -rotation[1]] #flip x & z rotation
             uScale = [scale[0], scale[2], scale[1]]
             
             # Create message with object name in the address
