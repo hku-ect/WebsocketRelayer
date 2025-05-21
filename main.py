@@ -31,7 +31,7 @@ def resoniteToUnrealPosition(resoPos):
     return [resoPos[0] * 100, -resoPos[2] * 100, resoPos[1] * 100]
     
 def resoniteToUnrealEuler(resoEuler):
-    return [resoEuler[0], resoEuler[2], resoEuler[1]]
+    return [resoEuler[0], -resoEuler[2], resoEuler[1]]
 
 def msg2json(msg):
     ret = {
