@@ -15,21 +15,49 @@ context = zmq.Context()
 socket = context.socket(zmq.PUB)
 socket.bind("tcp://*:5555")
 
+def limitEulerRanges(eulerArr):
+    if (eulerArr[0] > 180): eulerArr[0] -= 360
+    if (eulerArr[0] < 180): eulerArr[0] += 360
+
+    if (eulerArr[1] > 180): eulerArr[1] -= 360
+    if (eulerArr[1] < 180): eulerArr[1] += 360
+
+    if (eulerArr[2] > 180): eulerArr[2] -= 360
+    if (eulerArr[2] < 180): eulerArr[2] += 360
+
+    return eulerArr
+    
+def resoniteToUnrealPosition(resoPos):
+    return [resoPos[0] * 100, resoPos[2] * 100, resoPos[1] * 100]
+    
+def resoniteToUnrealEuler(resoEuler):
+    return [resoEuler[0], resoEuler[2], resoEuler[1]]
+
 def msg2json(msg):
     ret = {
         "msgType": 0,
-        "rootTransform": "",
+        "rootPosition": [],
+        "rootRotation": [],
+        "rootScale": [],
         "objects": [],
         "users": []
     }
     try:
         data = msg.split(":")
         ret["msgType"] = data[0]
-        ret["rootTransform"] = data[1]
-        
-        rootMatrix = strToMatrix(data[1])
-        inverseRootMatrix = np.linalg.inv(rootMatrix)
 
+        rootData = data[1].split(";")        
+        ret["rootPosition"] = np.array(rootData[0:3]).astype(np.float)
+        ret["rootRotation"] = np.array(rootData[3:6]).astype(np.float)
+        ret["rootScale"] = np.array(rootData[6:9]).astype(np.float)
+
+        ret["rootPosition"] = resoniteToUnrealPosition(ret["rootPosition"])
+        
+        ret["rootRotation"] = limitEulerRanges(ret["rootRotation"])
+        ret["rootRotation"] = resoniteToUnrealEuler(ret["rootRotation"])
+        
+        ret["rootScale"] = resoniteToUnrealEuler(ret["rootScale"])
+        
         for i in range(2, len(data)):
             object = data[i].split(";")            
             
@@ -139,33 +167,17 @@ def resoniteToUnrealMatrix(resoMat):
     unrealMat = conversion @ M_resonite @ np.linalg.inv(conversion)
     return unrealMat
 
-def limitEulerRanges(eulerArr):
-    if (eulerArr[0] > 180): eulerArr[0] -= 360
-    if (eulerArr[0] < 180): eulerArr[0] += 360
-
-    if (eulerArr[1] > 180): eulerArr[1] -= 360
-    if (eulerArr[1] < 180): eulerArr[1] += 360
-
-    if (eulerArr[2] > 180): eulerArr[2] -= 360
-    if (eulerArr[2] < 180): eulerArr[2] += 360
-
-    return eulerArr
-    
-def resoniteToUnrealPosition(resoPos):
-    return [resoPos[0] * 100, resoPos[2] * 100, resoPos[1] * 100]
-    
-def resoniteToUnrealEuler(resoEuler):
-    return [resoEuler[0], resoEuler[2], resoEuler[1]]
-
 def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBuilder]:
     messages = []
     
     try:
         # Root transform message
         root_msg = osc_message_builder.OscMessageBuilder(address="/root")
-        rootValues = data["rootTransform"].strip('[]').split(';')
-        rootFloats = [float(val) for val in rootValues]
-        for val in rootFloats:
+        for val in data["rootPosition"]:
+            root_msg.add_arg(val)
+        for val in data["rootRotation"]:
+            root_msg.add_arg(val)
+        for val in data["rootScale"]:
             root_msg.add_arg(val)
         messages.append(root_msg.build())
         
