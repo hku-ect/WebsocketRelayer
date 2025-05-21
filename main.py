@@ -33,6 +33,9 @@ def resoniteToUnrealPosition(resoPos):
 def resoniteToUnrealEuler(resoEuler):
     return [resoEuler[0], -resoEuler[2], resoEuler[1]]
 
+def resoniteToUnrealScale(resoScale):
+    return [resoScale[0], resoScale[2], resoScale[1]]
+
 def msg2json(msg):
     ret = {
         "msgType": 0,
@@ -174,7 +177,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         rootPos = resoniteToUnrealPosition(rootPos)        
         rootRot = limitEulerRanges(rootRot)
         rootRot = resoniteToUnrealEuler(rootRot)        
-        rootScale = resoniteToUnrealEuler(rootScale)
+        rootScale = resoniteToUnrealScale(rootScale)
         
         for val in rootPos:
             root_msg.add_arg(val)
