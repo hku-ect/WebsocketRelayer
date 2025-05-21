@@ -24,21 +24,24 @@ def oscToResonite(oscmsg):
 class UDPServer(gevent.server.DatagramServer):
 
     def handle(self, data, address): # pylint:disable=method-hidden
-        print('%s: got %r' % (address[0], data))
+        #print('%s: got %r' % (address[0], data))
         #self.socket.sendto(('Received %s bytes' % len(data)).encode('utf-8'), address)
         try:
             oscm = osc_message.OscMessage(data)
         except Exception as e:
             print("Osc error:", e)
-        todel = []
-        for c in clients:
-            try:
-                c.send(oscToResonite(oscm))
-            except Exception as e:
-                print("Clients seems gone, error is:", e)
-                todel.append(c)
-        for c in todel:
-            clients.discard(c)
+        else:
+            print("OSC received:", oscm.address)
+            #print("OSC received:", oscm.address, oscm.params)
+            todel = []
+            for c in clients:
+                try:
+                    c.send(oscToResonite(oscm))
+                except Exception as e:
+                    print("Clients seems gone, error is:", e)
+                    todel.append(c)
+            for c in todel:
+                clients.discard(c)
 
 @sockets.route('/echo')
 def echo_socket(ws):
@@ -52,9 +55,7 @@ def echo_socket(ws):
         todel = []
         if message:
             print("Message received: {0}".format(jsonMsgDump))
-            # forward over zmq
-            # socket.send(jsonMsgDump.encode())
-            
+
             # forward to other clients
             for c in clients:
                 try:
