@@ -176,11 +176,11 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         rootRot = resoniteToUnrealEuler(rootRot)        
         rootScale = resoniteToUnrealEuler(rootScale)
         
-        for val in data["rootPosition"]:
+        for val in rootPos:
             root_msg.add_arg(val)
-        for val in data["rootRotation"]:
+        for val in rootRot:
             root_msg.add_arg(val)
-        for val in data["rootScale"]:
+        for val in rootScale:
             root_msg.add_arg(val)
         messages.append(root_msg.build())
         
