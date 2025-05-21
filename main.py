@@ -241,9 +241,9 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             usr_lhPos = np.array(usr["lhPosition"]).astype(np.float)
             usr_rhPos = np.array(usr["rhPosition"]).astype(np.float)
             
-            usr_hRot = limitEulerRange(np.array(usr["headRotation"]).astype(np.float))
-            usr_lhRot = limitEulerRange(np.array(usr["lhRotation"]).astype(np.float))
-            usr_rhRot = limitEulerRange(np.array(usr["rhRotation"]).astype(np.float))
+            usr_hRot = limitEulerRanges(np.array(usr["headRotation"]).astype(np.float))
+            usr_lhRot = limitEulerRanges(np.array(usr["lhRotation"]).astype(np.float))
+            usr_rhRot = limitEulerRanges(np.array(usr["rhRotation"]).astype(np.float))
             
             # convert to unreal space
             usr_hPos = resoniteToUnrealPosition(usr_hPos)
