@@ -167,9 +167,9 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         # Root transform message
         root_msg = osc_message_builder.OscMessageBuilder(address="/root")
 
-        rootPos = np.array(ret["rootPosition"]).astype(np.float)
-        rootRot = np.array(ret["rootRotation"]).astype(np.float)
-        rootScale = np.array(ret["rootScale"]).astype(np.float)
+        rootPos = np.array(data["rootPosition"]).astype(np.float)
+        rootRot = np.array(data["rootRotation"]).astype(np.float)
+        rootScale = np.array(data["rootScale"]).astype(np.float)
         
         rootPos = resoniteToUnrealPosition(rootPos)        
         rootRot = limitEulerRanges(rootRot)
