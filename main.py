@@ -185,7 +185,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             #transform_values = obj["transform"]
             # convert Resonite to Unreal positions/rotations/scale
             uPos = [float(position[0]) * 100, -float(position[2]) * 100, float(position[1]) * 100] #flip y
-            rotation = limitEulerRange(rotation)
+            rotation = limitEulerRanges(rotation)
             uEuler = [rotation[0], rotation[2], rotation[1]] #flip x & z rotation
             uScale = [scale[0], scale[2], scale[1]]
             
