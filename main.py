@@ -47,16 +47,9 @@ def msg2json(msg):
         ret["msgType"] = data[0]
 
         rootData = data[1].split(";")        
-        ret["rootPosition"] = np.array(rootData[0:3]).astype(np.float)
-        ret["rootRotation"] = np.array(rootData[3:6]).astype(np.float)
-        ret["rootScale"] = np.array(rootData[6:9]).astype(np.float)
-
-        ret["rootPosition"] = resoniteToUnrealPosition(ret["rootPosition"])
-        
-        ret["rootRotation"] = limitEulerRanges(ret["rootRotation"])
-        ret["rootRotation"] = resoniteToUnrealEuler(ret["rootRotation"])
-        
-        ret["rootScale"] = resoniteToUnrealEuler(ret["rootScale"])
+        ret["rootPosition"] = rootData[0:3]
+        ret["rootRotation"] = rootData[3:6]
+        ret["rootScale"] = rootData[6:9]
         
         for i in range(2, len(data)):
             object = data[i].split(";")            
@@ -173,6 +166,16 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
     try:
         # Root transform message
         root_msg = osc_message_builder.OscMessageBuilder(address="/root")
+
+        rootPos = np.array(ret["rootPosition"]).astype(np.float)
+        rootRot = np.array(ret["rootRotation"]).astype(np.float)
+        rootScale = np.array(ret["rootScale"]).astype(np.float)
+        
+        rootPos = resoniteToUnrealPosition(rootPos)        
+        rootRot = limitEulerRanges(rootRot)
+        rootRot = resoniteToUnrealEuler(rootRot)        
+        rootScale = resoniteToUnrealEuler(rootScale)
+        
         for val in data["rootPosition"]:
             root_msg.add_arg(val)
         for val in data["rootRotation"]:
