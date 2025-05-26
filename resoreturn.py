@@ -54,7 +54,7 @@ class ResoObject(object):
         self.rot = self.unreal2ResoniteEuler(self.rot)
 
     def encode(self):
-        s = ";".join([self.name, self.uid, str(self.pos[0]), str(self.pos[1]), str(self.pos[2]),
+        s = ";".join([self.obj, self.uid, self.name, str(self.pos[0]), str(self.pos[1]), str(self.pos[2]),
                         str(self.rot[0]), str(self.rot[1]), str(self.rot[2])])
         return s
 
