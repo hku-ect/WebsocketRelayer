@@ -42,6 +42,9 @@ def msg2json(msg):
         "rootPosition": [],
         "rootRotation": [],
         "rootScale": [],
+        "vRootPosition": [],
+        "vRootRotation": [],
+        "vRootScale": [],
         "objects": [],
         "users": []
     }
@@ -70,6 +73,11 @@ def msg2json(msg):
                 }
                 
                 ret["users"].append(u)
+            elif object[0] == "Vroot":
+                ret["rootPosition"] = object[1:4]
+                ret["rootRotation"] = object[4:7]
+                ret["rootScale"] = object[7:10]
+                pass
             elif object[0] != '0':
                 d = {
                     "id": object[0],
@@ -186,6 +194,26 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         for val in rootScale:
             root_msg.add_arg(val)
         messages.append(root_msg.build())
+        
+        # Virtual Root transform message
+        vroot_msg = osc_message_builder.OscMessageBuilder(address="/vRoot")
+
+        vrootPos = np.array(data["vRootPosition"]).astype(np.float)
+        vrootRot = np.array(data["vRootRotation"]).astype(np.float)
+        vrootScale = np.array(data["vRootScale"]).astype(np.float)
+        
+        vrootPos = resoniteToUnrealPosition(vrootPos)        
+        vrootRot = limitEulerRanges(vrootRot)
+        vrootRot = resoniteToUnrealEuler(vrootRot)        
+        vrootScale = resoniteToUnrealScale(vrootScale)
+        
+        for val in vrootPos:
+            vroot_msg.add_arg(val)
+        for val in vrootRot:
+            vroot_msg.add_arg(val)
+        for val in vrootScale:
+            vroot_msg.add_arg(val)
+        messages.append(vroot_msg.build())
         
         # Process each object
         for obj in data["objects"]:        
