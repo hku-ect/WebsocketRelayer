@@ -74,9 +74,9 @@ def msg2json(msg):
                 
                 ret["users"].append(u)
             elif object[0] == "Vroot":
-                ret["rootPosition"] = object[1:4]
-                ret["rootRotation"] = object[4:7]
-                ret["rootScale"] = object[7:10]
+                ret["vRootPosition"] = object[1:4]
+                ret["vRootRotation"] = object[4:7]
+                ret["vRootScale"] = object[7:10]
                 pass
             elif object[0] != '0':
                 d = {
