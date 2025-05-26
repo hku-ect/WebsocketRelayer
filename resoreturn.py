@@ -39,13 +39,14 @@ def parse_osc_bundle_from_bytes(bundle_data):
         
         messages = []
         for content in bundle:
-            if isinstance(content, osc_message.OscMessage):
-                print(f"  Address: {content.address}")
-                print(f"  Arguments: {content.params}")
-                messages.append({
-                    'address': content.address,
-                    'params': content.params
-                })
+            messages.append(content)
+            #if isinstance(content, osc_message.OscMessage):
+            #    print(f"  Address: {content.address}")
+            #    print(f"  Arguments: {content.params}")
+            #    messages.append({
+            #        'address': content.address,
+            #        'params': content.params
+            #    })
         
         return messages            
     except Exception as e:
