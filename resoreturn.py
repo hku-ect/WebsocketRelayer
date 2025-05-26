@@ -38,20 +38,14 @@ def parse_osc_bundle_from_bytes(bundle_data):
         bundle = osc_bundle.OscBundle(bundle_data)
         
         messages = []
-        for i, content in enumerate(bundle.contents):
+        for content in bundle:
             if isinstance(content, osc_message.OscMessage):
-                print(f"\nMessage {i+1}:")
                 print(f"  Address: {content.address}")
                 print(f"  Arguments: {content.params}")
                 messages.append({
                     'address': content.address,
                     'params': content.params
                 })
-            elif isinstance(content, osc_bundle.OscBundle):
-                # Nested bundle
-                print(f"\nNested Bundle {i+1}:")
-                nested_messages = parse_nested_bundle(content)
-                messages.extend(nested_messages)
         
         return messages            
     except Exception as e:
