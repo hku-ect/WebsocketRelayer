@@ -7,6 +7,7 @@ from flask import Flask, render_template
 from flask_sock import Sock
 from pythonosc import osc_message_builder
 from pythonosc import osc_message
+from pythonosc import osc_packet
 import gevent
 from gevent import pywsgi
 from gevent import monkey
