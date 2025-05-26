@@ -23,7 +23,8 @@ clients = set()
 
 class ResoObject(object):
 
-    def __init__(self, string) -> None:
+    def __init__(self, name, string) -> None:
+        self.name = name
         self._string = string
         self.parse()
 
@@ -41,7 +42,7 @@ class ResoObject(object):
 
     def parse(self):
         spl = self._string.split(" ")
-        self.name = spl[0]
+        self.obj = spl[0]
         self.uid = spl[1]
         self.pos = (self._parse_value(spl[2])[1],
                     self._parse_value(spl[3])[1],
@@ -57,13 +58,14 @@ class ResoObject(object):
                         str(self.rot[0]), str(self.rot[1]), str(self.rot[2])])
         return s
 
-#resobj = ResoObject("Catwalk_Walk 5FF2F2C74B9506396D713194548BC815 X=3631.734 Y=1331.797 Z=-1.371 X=-116.006 Y=5.844 Z=-109.783")
+#resobj = ResoObject("hoofd", "Catwalk_Walk 5FF2F2C74B9506396D713194548BC815 X=3631.734 Y=1331.797 Z=-1.371 X=-116.006 Y=5.844 Z=-109.783")
 #print(resobj.encode())
 #sys.exit()
 
 def oscToResonite(oscmsg):
     resos = oscmsg.params[0]
-    resoobj = ResoObject(resos)
+    name = oscmsg.address.split("/")[2]
+    resoobj = ResoObject(name, resos)
     return resoobj.encode()
     
 def parse_osc_bundle_from_bytes(bundle_data):
