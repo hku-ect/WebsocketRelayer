@@ -8,6 +8,7 @@ from flask_sock import Sock
 from pythonosc import osc_message_builder
 from pythonosc import osc_message
 from pythonosc import osc_packet
+from pythonosc import osc_bundle
 import gevent
 from gevent import pywsgi
 from gevent import monkey
