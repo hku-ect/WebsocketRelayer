@@ -35,33 +35,25 @@ def parse_osc_bundle_from_bytes(bundle_data):
     """
     try:
         # Parse the bundle from bytes
-        bundle = osc_packet.OscPacket(bundle_data)
+        bundle = osc_bundle.OscBundle(bundle_data)
         
-        if isinstance(bundle, osc_bundle.OscBundle):
-            print(f"Bundle timestamp: {bundle.timestamp}")
-            print(f"Number of messages in bundle: {len(bundle.contents)}")
-            
-            messages = []
-            for i, content in enumerate(bundle.contents):
-                if isinstance(content, osc_message.OscMessage):
-                    print(f"\nMessage {i+1}:")
-                    print(f"  Address: {content.address}")
-                    print(f"  Arguments: {content.params}")
-                    messages.append({
-                        'address': content.address,
-                        'params': content.params
-                    })
-                elif isinstance(content, osc_bundle.OscBundle):
-                    # Nested bundle
-                    print(f"\nNested Bundle {i+1}:")
-                    nested_messages = parse_nested_bundle(content)
-                    messages.extend(nested_messages)
-            
-            return messages
-        else:
-            print("Data is not an OSC bundle")
-            return None
-            
+        messages = []
+        for i, content in enumerate(bundle.contents):
+            if isinstance(content, osc_message.OscMessage):
+                print(f"\nMessage {i+1}:")
+                print(f"  Address: {content.address}")
+                print(f"  Arguments: {content.params}")
+                messages.append({
+                    'address': content.address,
+                    'params': content.params
+                })
+            elif isinstance(content, osc_bundle.OscBundle):
+                # Nested bundle
+                print(f"\nNested Bundle {i+1}:")
+                nested_messages = parse_nested_bundle(content)
+                messages.extend(nested_messages)
+        
+        return messages            
     except Exception as e:
         print(f"Error parsing bundle: {e}")
         return None
