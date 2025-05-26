@@ -1,3 +1,4 @@
+import sys
 import json
 import numpy as np
 import logging
@@ -20,8 +21,41 @@ sockets = Sock(app)
 
 clients = set()
 
+class ResoObject(object):
+
+    def __init__(self, string) -> None:
+        self._string = string
+        self.parse()
+
+    def _parse_value(self, vs):
+        name, val = vs.split("=")
+        val = float(val)
+        return (name, val)
+
+    def parse(self):
+        spl = self._string.split(" ")
+        self.name = spl[0]
+        self.uid = spl[1]
+        self.pos = (self._parse_value(spl[2])[1],
+                    self._parse_value(spl[3])[1],
+                    self._parse_value(spl[4])[1])
+        self.rot = (self._parse_value(spl[5])[1],
+                    self._parse_value(spl[6])[1],
+                    self._parse_value(spl[7])[1])
+
+    def encode(self):
+        s = ";".join([self.name, self.uid, str(self.pos[0]), str(self.pos[1]), str(self.pos[2]),
+                        str(self.rot[0]), str(self.rot[1]), str(self.rot[2])])
+        return s
+
+#resobj = ResoObject("Catwalk_Walk 5FF2F2C74B9506396D713194548BC815 X=3631.734 Y=1331.797 Z=-1.371 X=-116.006 Y=5.844 Z=-109.783")
+#print(resobj.encode())
+#sys.exit()
+
 def oscToResonite(oscmsg):
-    return "dit is een bericht voor resonite"
+    resos = oscmsg.params[0]
+    resoobj = ResoObject(resos)
+    return resoobj.encode()
     
 def parse_osc_bundle_from_bytes(bundle_data):
     """
