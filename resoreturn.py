@@ -20,6 +20,49 @@ clients = set()
 
 def oscToResonite(oscmsg):
     return "dit is een bericht voor resonite"
+    
+def parse_osc_bundle_from_bytes(bundle_data):
+    """
+    Parse an OSC bundle from raw bytes
+    
+    Args:
+        bundle_data (bytes): Raw OSC bundle data
+        
+    Returns:
+        tuple: (timestamp, messages) where messages is a list of parsed OSC messages
+    """
+    try:
+        # Parse the bundle from bytes
+        bundle = osc_packet.OscPacket(bundle_data)
+        
+        if isinstance(bundle, osc_bundle.OscBundle):
+            print(f"Bundle timestamp: {bundle.timestamp}")
+            print(f"Number of messages in bundle: {len(bundle.contents)}")
+            
+            messages = []
+            for i, content in enumerate(bundle.contents):
+                if isinstance(content, osc_message.OscMessage):
+                    print(f"\nMessage {i+1}:")
+                    print(f"  Address: {content.address}")
+                    print(f"  Arguments: {content.params}")
+                    messages.append({
+                        'address': content.address,
+                        'params': content.params
+                    })
+                elif isinstance(content, osc_bundle.OscBundle):
+                    # Nested bundle
+                    print(f"\nNested Bundle {i+1}:")
+                    nested_messages = parse_nested_bundle(content)
+                    messages.extend(nested_messages)
+            
+            return messages
+        else:
+            print("Data is not an OSC bundle")
+            return None
+            
+    except Exception as e:
+        print(f"Error parsing bundle: {e}")
+        return None
 
 class UDPServer(gevent.server.DatagramServer):
 
@@ -27,21 +70,24 @@ class UDPServer(gevent.server.DatagramServer):
         #print('%s: got %r' % (address[0], data))
         #self.socket.sendto(('Received %s bytes' % len(data)).encode('utf-8'), address)
         try:
-            oscm = osc_message.OscMessage(data)
+            # oscm = osc_message.OscMessage(data)
+            # bundle parse_nested_bundle
+            oscMessages = parse_osc_bundle_from_bytes(data)
         except Exception as e:
             print("Osc error:", e)
         else:
-            print("OSC received:", oscm.address)
-            #print("OSC received:", oscm.address, oscm.params)
-            todel = []
-            for c in clients:
-                try:
-                    c.send(oscToResonite(oscm))
-                except Exception as e:
-                    print("Clients seems gone, error is:", e)
-                    todel.append(c)
-            for c in todel:
-                clients.discard(c)
+            for oscm in oscMessages:
+                print("OSC received:", oscm.address)
+                #print("OSC received:", oscm.address, oscm.params)
+                todel = []
+                for c in clients:
+                    try:
+                        c.send(oscToResonite(oscm))
+                    except Exception as e:
+                        print("Clients seems gone, error is:", e)
+                        todel.append(c)
+                for c in todel:
+                    clients.discard(c)
 
 @sockets.route('/echo')
 def echo_socket(ws):
