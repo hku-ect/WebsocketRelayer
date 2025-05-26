@@ -77,6 +77,7 @@ def msg2json(msg):
                 ret["vRootPosition"] = object[1:4]
                 ret["vRootRotation"] = object[4:7]
                 ret["vRootScale"] = object[7:10]
+                print(ret["vRootPosition"])
                 pass
             elif object[0] != '0':
                 d = {
@@ -294,12 +295,12 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             
             # convert to unreal space
             usr_hPos = resoniteToUnrealPosition(usr_hPos)
-            usr_lhPos = resoniteToUnrealPosition(usr_hPos)
-            usr_lhPos = resoniteToUnrealPosition(usr_hPos)
+            usr_lhPos = resoniteToUnrealPosition(usr_lhPos)
+            usr_rhPos = resoniteToUnrealPosition(usr_rhPos)
             
             usr_hRot = resoniteToUnrealEuler(usr_hRot)
-            usr_hRot = resoniteToUnrealEuler(usr_hRot)
-            usr_hRot = resoniteToUnrealEuler(usr_hRot)
+            usr_lhRot = resoniteToUnrealEuler(usr_lhRot)
+            usr_rhRot = resoniteToUnrealEuler(usr_rhRot)
             
             # build message            
             usr_msg = osc_message_builder.OscMessageBuilder(address=f"/user/{usr_name}")
