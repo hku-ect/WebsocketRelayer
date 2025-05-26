@@ -32,6 +32,13 @@ class ResoObject(object):
         val = float(val)
         return (name, val)
 
+    def unreal2ResonitePosition(self, resoPos):
+        return [resoPos[0] / 100, resoPos[2] / 100, -resoPos[1] / 100]
+
+    def unreal2ResoniteEuler(self, resoEuler):
+        return [-resoEuler[0], resoEuler[2], resoEuler[1]]
+
+
     def parse(self):
         spl = self._string.split(" ")
         self.name = spl[0]
@@ -39,9 +46,11 @@ class ResoObject(object):
         self.pos = (self._parse_value(spl[2])[1],
                     self._parse_value(spl[3])[1],
                     self._parse_value(spl[4])[1])
+        self.pos = self.unreal2ResonitePosition(self.pos)
         self.rot = (self._parse_value(spl[5])[1],
                     self._parse_value(spl[6])[1],
                     self._parse_value(spl[7])[1])
+        self.rot = self.unreal2ResoniteEuler(self.rot)
 
     def encode(self):
         s = ";".join([self.name, self.uid, str(self.pos[0]), str(self.pos[1]), str(self.pos[2]),
