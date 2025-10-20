@@ -5,6 +5,7 @@ from typing import Dict, List, Any
 import zmq
 import json
 import numpy as np
+import locale
 
 app = Flask(__name__)
 app.debug = True
@@ -14,6 +15,8 @@ clients = set()
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
 socket.bind("tcp://*:5555")
+
+locale.setlocale(locale.LC_NUMERIC, 'C')
 
 def limitEulerRanges(eulerArr):
     if (eulerArr[0] > 180): eulerArr[0] -= 360
@@ -49,6 +52,7 @@ def msg2json(msg):
         "users": []
     }
     try:
+        msg = msg.replace(',','.')
         data = msg.split(":")
         ret["msgType"] = data[0]
 
@@ -56,9 +60,9 @@ def msg2json(msg):
         ret["rootPosition"] = rootData[0:3]
         ret["rootRotation"] = rootData[3:6]
         ret["rootScale"] = rootData[6:9]
-        
+	        
         for i in range(2, len(data)):
-            object = data[i].split(";")            
+            object = data[i].split(";")    
             
             if object[0] == "User":
                 u = {
@@ -77,7 +81,7 @@ def msg2json(msg):
                 ret["vRootPosition"] = object[1:4]
                 ret["vRootRotation"] = object[4:7]
                 ret["vRootScale"] = object[7:10]
-                print(ret["vRootPosition"])
+                # print(ret["vRootPosition"])
                 pass
             elif object[0] != '0':
                 d = {
@@ -104,6 +108,8 @@ def msg2json(msg):
                         "fov": "45"
                     }
                 }
+
+                
                 
                 # parse properties for each type
                 if object[1] == "Mesh":
@@ -179,9 +185,9 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         # Root transform message
         root_msg = osc_message_builder.OscMessageBuilder(address="/root")
 
-        rootPos = np.array(data["rootPosition"]).astype(np.float)
-        rootRot = np.array(data["rootRotation"]).astype(np.float)
-        rootScale = np.array(data["rootScale"]).astype(np.float)
+        rootPos = np.array(data["rootPosition"]).astype(float)
+        rootRot = np.array(data["rootRotation"]).astype(float)
+        rootScale = np.array(data["rootScale"]).astype(float)
         
         rootPos = resoniteToUnrealPosition(rootPos)        
         rootRot = limitEulerRanges(rootRot)
@@ -199,9 +205,9 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
         # Virtual Root transform message
         vroot_msg = osc_message_builder.OscMessageBuilder(address="/vRoot")
 
-        vrootPos = np.array(data["vRootPosition"]).astype(np.float)
-        vrootRot = np.array(data["vRootRotation"]).astype(np.float)
-        vrootScale = np.array(data["vRootScale"]).astype(np.float)
+        vrootPos = np.array(data["vRootPosition"]).astype(float)
+        vrootRot = np.array(data["vRootRotation"]).astype(float)
+        vrootScale = np.array(data["vRootScale"]).astype(float)
         
         vrootPos = resoniteToUnrealPosition(vrootPos)        
         vrootRot = limitEulerRanges(vrootRot)
@@ -226,7 +232,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             #transform_values = obj["transform"]
             
             position = obj["position"]
-            rotation = np.array(obj["rotation"]).astype(np.float)
+            rotation = np.array(obj["rotation"]).astype(float)
             scale = obj["scale"]
 
             #transform_values = obj["transform"]
@@ -285,13 +291,13 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
             usr_name = usr["name"]
             
             # parse to arrays
-            usr_hPos = np.array(usr["headPosition"]).astype(np.float)
-            usr_lhPos = np.array(usr["lhPosition"]).astype(np.float)
-            usr_rhPos = np.array(usr["rhPosition"]).astype(np.float)
+            usr_hPos = np.array(usr["headPosition"]).astype(float)
+            usr_lhPos = np.array(usr["lhPosition"]).astype(float)
+            usr_rhPos = np.array(usr["rhPosition"]).astype(float)
             
-            usr_hRot = limitEulerRanges(np.array(usr["headRotation"]).astype(np.float))
-            usr_lhRot = limitEulerRanges(np.array(usr["lhRotation"]).astype(np.float))
-            usr_rhRot = limitEulerRanges(np.array(usr["rhRotation"]).astype(np.float))
+            usr_hRot = limitEulerRanges(np.array(usr["headRotation"]).astype(float))
+            usr_lhRot = limitEulerRanges(np.array(usr["lhRotation"]).astype(float))
+            usr_rhRot = limitEulerRanges(np.array(usr["rhRotation"]).astype(float))
             
             # convert to unreal space
             usr_hPos = resoniteToUnrealPosition(usr_hPos)
@@ -346,7 +352,7 @@ def echo_socket(ws):
         
         todel = []
         if message:
-            print("Message received")#: {0}".format(jsonMsgDump))
+            print("Message received {0}".format(msg))
             # forward over zmq
             # socket.send(jsonMsgDump.encode())
             
