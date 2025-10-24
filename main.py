@@ -131,6 +131,9 @@ def msg2json(msg):
                     d["properties"]["isPlaying"] = object[16]
                     d["properties"]["volume"] = object[17]
                     pass
+                else:
+                    d["properties"]["visible"] = object[14]
+                    pass
                 
                 ret["objects"].append(d)
     except Exception as e:
