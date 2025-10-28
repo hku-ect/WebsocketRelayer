@@ -287,7 +287,7 @@ def parse_to_osc(data: Dict[str, Any]) -> List[osc_message_builder.OscMessageBui
                 obj_msg.add_arg(obj["properties"]["isPlaying"])
                 obj_msg.add_arg(obj["properties"]["volume"])
                 pass
-			else:
+            else:
                 obj_msg.add_arg(obj["properties"]["visible"])
             
             messages.append(obj_msg.build())
